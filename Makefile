@@ -1,5 +1,11 @@
 NAME = philo
-SRC = src/philosophers.c
+SRCs = src/philosophers.c \
+		src/philosophers_utils.c \
+		src/parsing.c \
+		src/ft_printf.c \
+		src/ft_printnbr.c \
+		src/ft_printptr.c \
+		src/ft_printletters.c
 HEADERS = -I ./include
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -g
@@ -20,6 +26,9 @@ clean:
 
 fclean: clean
 	rm -rf $(NAME)
+
+fullgit:
+	git add $(SRCS) $(HEADERS) Makefile
 
 re: fclean all
 
