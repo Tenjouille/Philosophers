@@ -6,7 +6,7 @@
 /*   By: tbourdea <tbourdea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/23 15:53:30 by tbourdea          #+#    #+#             */
-/*   Updated: 2023/09/05 19:02:24 by tbourdea         ###   ########.fr       */
+/*   Updated: 2023/09/08 12:28:50 by tbourdea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,11 @@
 # include <unistd.h>
 # include <stdint.h>
 # include <sys/time.h>
-# include "ft_printf.h"
 
 typedef struct s_philo
 {
 	struct s_data	*data;
-	pthread_t		t1;
+	pthread_t		tid;
 	int				id;
 	int				eat_count;
 	int				status;
@@ -41,8 +40,8 @@ typedef struct s_data
 	pthread_t		*thread_id;
 	int				philo_nb;
 	int				meals_nb;
-	int				death;
 	int				done;
+	int				dead;
 	t_philo			*philos;
 	int				death_timer;	
 	int				eat_timer;
@@ -53,19 +52,23 @@ typedef struct s_data
 	pthread_mutex_t	write;
 }					t_data; 
 /*		philosphers_utils		*/
-int		ft_init_param(int ac, char **av, t_data *data);
-void	ft_init_philos(t_data *data);
-void	ft_init_forks(t_data *data);
-void	ft_write(int time, int philo, char *msg, pthread_mutex_t *write_mutex);
 int		get_time(void);
 int		ft_usleep(int time);
-int		ft_timer(int start);
+int		ft_time_from(int start);
+void	ft_write(int time, char *msg, t_philo *philo);
 /*		parsing.c		*/
 int		ft_atoi(char *str);
 /*		philosophers.c		*/
+void	*doctolib(void *arg);
 void	*routine(void *arg);
 /*		actions.c		*/
 void	take_forks(t_philo *philo);
 void	drop_forks(t_philo *philo);
+void	ft_eat(t_philo *philo);
+/*		init.c		*/
+int		ft_malloc(t_data *data);
+void	ft_init_philos(t_data *data);
+void	ft_init_forks(t_data *data);
+int		ft_init_param(int ac, char **av, t_data *data);
 
 #endif

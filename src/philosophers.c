@@ -6,56 +6,11 @@
 /*   By: tbourdea <tbourdea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/23 15:35:40 by tbourdea          #+#    #+#             */
-/*   Updated: 2023/09/05 19:07:48 by tbourdea         ###   ########.fr       */
+/*   Updated: 2023/09/08 16:49:52 by tbourdea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
-
-// int	get_random(int max)
-// {
-// 	double	val;
-
-// 	val = (double) max * rand();
-// 	val /= (RAND_MAX + 1.0);
-// 	return ((int)val);
-// }
-
-// void	*fn_store(void* arg)
-// {
-// 	t_store*	store;
-	
-// 	store = (t_store*) arg;
-// 	while (1)
-// 	{
-// 		if (store->stock <= 0)
-// 		{
-// 			store->stock += 20;
-// 			printf ("Remplissage du stock de %d articles\n", store->stock);
-// 		}
-// 	}
-// 	return (NULL);
-// 	// (void) arg;
-// 	// sleep (1);
-// 	// printf("Thread num %lu\n", pthread_self());
-// 	// return (NULL);
-// }
-
-// void	*fn_clients(void* arg)
-// {
-// 	t_store*	store;
-// 	int			val;
-
-// 	store = (t_store*) arg;
-// 	while (1)
-// 	{
-// 		val = get_random(6);
-// 		sleep(get_random(5));
-// 		store->stock -= val;
-// 		printf("Client %d prend %d du stock, reste %d en stock\n", store->client_id, val, store->stock);
-// 	}
-// 	return (NULL);
-// }
 
 int	ft_parsing(int ac, char **av)
 {
@@ -76,61 +31,43 @@ int	ft_parsing(int ac, char **av)
 	return (0);
 }
 
-// int	ft_init(int philo_nb)
-// {
-// 	int		i;
-// 	t_philo	philo;
-	
-// 	while (i < philo_nb)
-// 	{
-// 		pthread_mutex_init(&philo.l_fork, NULL);
-// 		pthread_create(&philo.t1, NULL, &routine, (void*)&philo);
-		
-// 		i++;
-// 	}
-// }
-
-void	*routine(void *arg)
+void	*doctolib(void *arg)
 {
-	// int		i;
 	t_philo	*philo;
 
 	philo = (t_philo*)arg;
-	// philo.l_fork = data->forks[philo.id];
-	// if (philo.id == 1)
-	// 	philo.r_fork = data->forks[data->philo_nb];
-	// else
-	// 	philo.r_fork = data->forks[philo.id - 1];
-	if (ft_timer(philo->data->start_timer) < philo->data->eat_timer && philo->id % 2 == 0)
-		take_forks(philo);
-	while (philo->eat_count != philo->data->meals_nb)
+	while (!philo->data->dead)
 	{
-		if (philo->eating)
-			ft_write(ft_timer(philo->data->start_timer),philo->id, "is eating\n", &philo->data->write);
-		ft_usleep(philo->data->eat_timer);
-		philo->eat_count++;
-		// if (drop_forks(philo))
-		// 	return (NULL);
-		ft_write(ft_timer(philo->data->start_timer),philo->id, "is sleeping\n", &philo->data->write);
-		ft_usleep(philo->data->sleep_timer);
-		ft_write(ft_timer(philo->data->start_timer),philo->id, "is thinking\n", &philo->data->write);
-		pthread_mutex_lock(&philo->data->write);
-		printf("%d ate %d of %d meals\n",philo->id, philo->eat_count, philo->data->meals_nb);
-		pthread_mutex_unlock(&philo->data->write);
+		pthread_mutex_lock(&philo->lock);
+		if (get_time() >= philo->time_to_die && !philo->eating)
+		{
+			ft_write(ft_time_from(philo->data->start_timer), "died\n", philo);
+			philo->data->dead = 1;
+		}
+		pthread_mutex_unlock(&philo->lock);
 	}
 	return (NULL);
 }
 
-// void	*monitor(void *arg)
-// {
-// 	t_data	*data;
+void	*routine(void *arg)
+{
+	t_philo	*philo;
 
-// 	data = (t_data*)arg;
-// 	while (data->philos->status)
-// 	{
-		
-// 	}
-// }
+	philo = (t_philo*)arg;
+	if (philo->id % 2 == 0)
+		ft_usleep(philo->data->eat_timer / 2);
+	if (pthread_create(&philo->tid, NULL, &doctolib, (void*)philo))
+		return ((void*)1);
+	while (!philo->data->dead)
+	{
+			ft_eat(philo);
+			take_forks(philo);
+		ft_write(ft_time_from(philo->data->start_timer), "is thinking\n", philo);
+	}
+	if (!pthread_join(philo->tid, NULL))
+		return ((void*)0);
+	return ((void*)1);
+}
 
 int	main(int ac, char **av)
 {
@@ -152,17 +89,11 @@ int	main(int ac, char **av)
 		pthread_create(&data.thread_id[i], NULL, &routine, (void*)&data.philos[i]);
 		i++;
 	}
-	// pthread_create(&data.thread_id[i], NULL, &monitor, (void*)&data);
-	// pthread_join(data.thread_id[data.philo_nb - 1], NULL);
-	ft_usleep(10000);
-	pthread_mutex_destroy(&data.write);
+	i = 0;
+	while (i < data.philo_nb)
+	{
+		pthread_join(data.thread_id[i], NULL);
+		i++;
+	}
 	return (0);
 }
-	// pthread_t	thread;
-
-	// thread = pthread_self();
-	// pthread_create(&thread, NULL, display_thread_id, NULL);
-	// pthread_cancel(thread);
-	// pthread_exit (NULL);
-	// pthread_join(thread, NULL);
-	// printf("Thread parent num %lu\n", pthread_self());

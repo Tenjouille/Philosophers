@@ -1,16 +1,14 @@
 NAME = philo
-SRCs = src/philosophers.c \
+SRCS = src/philosophers.c \
 		src/philosophers_utils.c \
 		src/parsing.c \
-		src/ft_printf.c \
-		src/ft_printnbr.c \
-		src/ft_printptr.c \
-		src/ft_printletters.c
+		src/actions.c \
+		src/init.c
 HEADERS = -I ./include
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -g
 THREADFLAGS = -pthread
-OBJ = $(addprefix obj/, $(notdir $(SRC:.c=.o)))
+OBJ = $(addprefix obj/, $(notdir $(SRCS:.c=.o)))
 
 all: $(NAME)
 
