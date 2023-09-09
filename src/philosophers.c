@@ -6,7 +6,7 @@
 /*   By: tbourdea <tbourdea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/23 15:35:40 by tbourdea          #+#    #+#             */
-/*   Updated: 2023/09/08 16:49:52 by tbourdea         ###   ########.fr       */
+/*   Updated: 2023/09/09 13:39:51 by tbourdea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,20 +31,15 @@ int	ft_parsing(int ac, char **av)
 	return (0);
 }
 
-void	*doctolib(void *arg)
+void	doctolib(t_data *data)
 {
-	t_philo	*philo;
-
-	philo = (t_philo*)arg;
-	while (!philo->data->dead)
+	while (!philo_dead(data))
 	{
-		pthread_mutex_lock(&philo->lock);
 		if (get_time() >= philo->time_to_die && !philo->eating)
 		{
-			ft_write(ft_time_from(philo->data->start_timer), "died\n", philo);
+			ft_write(ft_time_from(philo->start_timer), "died\n", philo);
 			philo->data->dead = 1;
 		}
-		pthread_mutex_unlock(&philo->lock);
 	}
 	return (NULL);
 }
@@ -54,46 +49,30 @@ void	*routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo*)arg;
-	if (philo->id % 2 == 0)
-		ft_usleep(philo->data->eat_timer / 2);
-	if (pthread_create(&philo->tid, NULL, &doctolib, (void*)philo))
-		return ((void*)1);
 	while (!philo->data->dead)
 	{
-			ft_eat(philo);
-			take_forks(philo);
+		ft_eat(philo);
 		ft_write(ft_time_from(philo->data->start_timer), "is thinking\n", philo);
 	}
-	if (!pthread_join(philo->tid, NULL))
-		return ((void*)0);
-	return ((void*)1);
+	return ((void*)0);
 }
 
 int	main(int ac, char **av)
 {
 	t_data	data;
-	t_philo	*philos;
 	int		i;
 
 	i = 0;
-	philos = NULL;
-	data.philos = philos;
 	// if (parsing(ac, av))
 	// 	return (1);
-	ft_init_param(ac, av, &data); 
-	data.start_timer = get_time();
-	i = 0;
-	pthread_mutex_init(&data.lock, NULL);
-	while (i < ft_atoi(av[1]))
-	{
-		pthread_create(&data.thread_id[i], NULL, &routine, (void*)&data.philos[i]);
-		i++;
-	}
-	i = 0;
+	if (ft_init_all(ac, av, &data))
+		return (1);
 	while (i < data.philo_nb)
 	{
-		pthread_join(data.thread_id[i], NULL);
+		pthread_join(data.philos[i].thread_id, NULL);
 		i++;
 	}
+	while (!doctolib(&data))
+		continue;
 	return (0);
 }

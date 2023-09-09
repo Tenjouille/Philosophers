@@ -6,11 +6,21 @@
 /*   By: tbourdea <tbourdea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/02 13:56:41 by tbourdea          #+#    #+#             */
-/*   Updated: 2023/09/08 16:23:26 by tbourdea         ###   ########.fr       */
+/*   Updated: 2023/09/09 11:52:45 by tbourdea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
+
+int	philo_dead(t_data *data)
+{
+	int	res;
+
+	pthread_mutex_lock(&data->death);
+	res = data->dead;
+	pthread_mutex_unlock(&data->death);
+	return (res);
+}
 
 int	ft_strcmp(char *s1, char *s2)
 {
@@ -31,13 +41,16 @@ int	get_time(void)
 	return ((int)tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 }
 
-int	ft_usleep(int time)
+int	ft_usleep(int time, t_data *data)
 {
 	int	start;
 
-	start = get_time();
-	while (get_time() - start < time)
-		usleep(1);
+	start = 0;
+	while (start < time && !philo_dead(data))
+	{
+		usleep(10000);
+		start += 10;
+	}
 	return  (0);
 }
 
