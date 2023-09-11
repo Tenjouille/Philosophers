@@ -1,7 +1,7 @@
 NAME = philo
 SRCS = src/philosophers.c \
 		src/philosophers_utils.c \
-		src/parsing.c \
+		src/check.c \
 		src/actions.c \
 		src/init.c
 HEADERS = -I ./include

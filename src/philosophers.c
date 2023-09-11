@@ -6,73 +6,92 @@
 /*   By: tbourdea <tbourdea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/23 15:35:40 by tbourdea          #+#    #+#             */
-/*   Updated: 2023/09/09 13:39:51 by tbourdea         ###   ########.fr       */
+/*   Updated: 2023/09/11 17:24:09 by tbourdea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
 
-int	ft_parsing(int ac, char **av)
+void	ft_freeall(t_data *data)
 {
-	if (ac < 5 || ac > 6)
+	long	i;
+
+	i = 0;
+	pthread_mutex_destroy(&data->death);
+	pthread_mutex_destroy(&data->meal);
+	pthread_mutex_destroy(&data->write);
+	while (i < data->philo_nb)
 	{
-		write(2, "Error ! The differents argument are :\n", 38);
-		write(2, "\t1.\tNumber of philosophers\n\t2.\tTime to die\n", 43);
-		write(2, "\t3.\tTime to eat\n\t4.\tTime to sleep\n\t(5.\t", 39);
-		write(2, "Number of times each philosophers must eat)\n\n", 45);
-		write(2, "Please retry with the good number of argument.", 46);
+		pthread_mutex_destroy(&data->forks[i]);
+		i++;
+	}
+	free (data->forks);
+	free (data->philos);
+}
+
+int	ft_init_all(int ac, char **av, t_data *data)
+{
+	int	ret;
+
+	if (ac < 5 || ac > 6)
+		return (1);
+	ret = ft_init_data(ac, av, data);
+	if (ret == -1)
+	{
+		printf("Args can't be null, negatives or non numeric values\n");
 		return (1);
 	}
-	if (ft_atoi(av[1]) <= 0 || ft_atoi(av[2]) <= 0 || ft_atoi(av[3]) <= 0
-		|| ft_atoi(av[4]) <= 0)
-		return (write (2, "Error ! Arguments must be bigger than 0.\n", 41),1);
-	if (ac == 6 && ft_atoi(av[5]) < 0)
+	if (ret == 1)
+		return (1);
+	if (ft_malloc_init(data))
+		return (1);
+	if (ft_init_philos(data))
+		return (1);
+	if (ft_init_forks(data))
+		return (1);
+	if (ft_init_threads(data))
 		return (1);
 	return (0);
 }
 
-void	doctolib(t_data *data)
+void	*ft_one_philo(t_philo *philo)
 {
-	while (!philo_dead(data))
-	{
-		if (get_time() >= philo->time_to_die && !philo->eating)
-		{
-			ft_write(ft_time_from(philo->start_timer), "died\n", philo);
-			philo->data->dead = 1;
-		}
-	}
-	return (NULL);
+	write(1, "0 1 has taken a fork\n", 21);
+	usleep(philo->death_timer * 1000);
+	printf ("%ld 1 died\n", philo->death_timer);
+	return ((void *) 0);
 }
 
 void	*routine(void *arg)
 {
 	t_philo	*philo;
 
-	philo = (t_philo*)arg;
-	while (!philo->data->dead)
+	philo = (t_philo *) arg;
+	// if (philo->philo_nb == 1)
+	// 	return (ft_one_philo(philo));
+	while (!philo_dead(philo->data) && !philo_done(philo))
 	{
 		ft_eat(philo);
-		ft_write(ft_time_from(philo->data->start_timer), "is thinking\n", philo);
+		ft_write("is thinking\n", philo);
 	}
-	return ((void*)0);
+	return ((void *) 0);
 }
 
 int	main(int ac, char **av)
 {
 	t_data	data;
-	int		i;
+	long	i;
 
 	i = 0;
-	// if (parsing(ac, av))
-	// 	return (1);
 	if (ft_init_all(ac, av, &data))
 		return (1);
+	if (data.philo_nb != 1)
+		doctolib(&data);
 	while (i < data.philo_nb)
 	{
-		pthread_join(data.philos[i].thread_id, NULL);
+		pthread_join(data.philos[i].tid, NULL);
 		i++;
 	}
-	while (!doctolib(&data))
-		continue;
+	ft_freeall(&data);
 	return (0);
 }
