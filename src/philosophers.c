@@ -6,7 +6,7 @@
 /*   By: tbourdea <tbourdea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/23 15:35:40 by tbourdea          #+#    #+#             */
-/*   Updated: 2023/09/11 17:24:09 by tbourdea         ###   ########.fr       */
+/*   Updated: 2023/09/13 11:14:01 by tbourdea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,12 +67,14 @@ void	*routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *) arg;
-	// if (philo->philo_nb == 1)
-	// 	return (ft_one_philo(philo));
+	if (philo->philo_nb == 1)
+		return (ft_one_philo(philo));
 	while (!philo_dead(philo->data) && !philo_done(philo))
 	{
 		ft_eat(philo);
 		ft_write("is thinking\n", philo);
+		if (philo->philo_nb % 2)
+			ft_usleep(philo->eat_timer - philo->sleep_timer + 5, philo->data);
 	}
 	return ((void *) 0);
 }

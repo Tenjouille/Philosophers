@@ -6,7 +6,7 @@
 /*   By: tbourdea <tbourdea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 18:30:10 by tbourdea          #+#    #+#             */
-/*   Updated: 2023/09/11 17:28:28 by tbourdea         ###   ########.fr       */
+/*   Updated: 2023/09/13 11:10:41 by tbourdea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,16 +36,14 @@ void	drop_forks(t_philo *philo)
 	{
 		pthread_mutex_unlock(philo->l_fork);
 		pthread_mutex_unlock(philo->r_fork);
-		ft_write("is sleeping\n", philo);
-		ft_usleep(philo->sleep_timer, philo->data);
 	}
 	else
 	{
 		pthread_mutex_unlock(philo->r_fork);
 		pthread_mutex_unlock(philo->l_fork);
-		ft_write("is sleeping\n", philo);
-		ft_usleep(philo->sleep_timer, philo->data);
 	}
+	ft_write("is sleeping\n", philo);
+	ft_usleep(philo->sleep_timer, philo->data);
 }
 
 void	ft_eat(t_philo *philo)
@@ -65,7 +63,7 @@ void	ft_write(char *msg, t_philo *philo)
 	pthread_mutex_lock(&philo->data->write);
 	if (!philo_dead(philo->data))
 	{
-		printf("%d %d %s", ft_time_from(philo->start_timer), philo->id, msg);
+		printf("%ld %d %s", ft_time_from(philo->start_timer), philo->id, msg);
 		if (!ft_strcmp(msg, "died\n"))
 		{
 			pthread_mutex_lock(&philo->data->death);

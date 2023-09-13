@@ -6,7 +6,7 @@
 /*   By: tbourdea <tbourdea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/02 13:56:41 by tbourdea          #+#    #+#             */
-/*   Updated: 2023/09/11 17:28:44 by tbourdea         ###   ########.fr       */
+/*   Updated: 2023/09/11 17:34:06 by tbourdea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ long	ft_usleep(long time, t_data *data)
 	return (0);
 }
 
-int	ft_time_from(long start)
+long	ft_time_from(long start)
 {
 	return (get_time() - start);
 }

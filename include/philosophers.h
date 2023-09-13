@@ -6,7 +6,7 @@
 /*   By: tbourdea <tbourdea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/23 15:53:30 by tbourdea          #+#    #+#             */
-/*   Updated: 2023/09/11 17:29:02 by tbourdea         ###   ########.fr       */
+/*   Updated: 2023/09/13 11:04:30 by tbourdea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,13 +53,13 @@ typedef struct s_data
 	pthread_mutex_t	death;
 	pthread_mutex_t	write;
 	pthread_mutex_t	meal;
-}					t_data; 
+}					t_data;
 /*		philosphers_utils		*/
 long	ft_atol(char *str);
 int		ft_strcmp(char *s1, char *s2);
 long	get_time(void);
 long	ft_usleep(long time, t_data *data);
-int		ft_time_from(long start);
+long	ft_time_from(long start);
 /*		check.c		*/
 int		ft_scanner(long i, t_data *data);
 void	doctolib(t_data *data);
